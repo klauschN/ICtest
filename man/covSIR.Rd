@@ -46,7 +46,7 @@ Klaus Nordhausen
 }
 
 \seealso{
-\code{\link{ics}}
+\code{\link[ICS]{ics}}
 }
 \examples{
 X <- matrix(rnorm(1000), ncol = 5)
