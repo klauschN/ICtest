@@ -1,0 +1,1 @@
+ggscreeplot <- function(x, ...) UseMethod("ggscreeplot")
