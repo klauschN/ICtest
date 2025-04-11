@@ -28,3 +28,4 @@ Description: For different linear dimension reduction methods like principal com
 License: GPL (>= 2)
 Suggests: knitr, rmarkdown, fICA
 VignetteBuilder: knitr
+RoxygenNote: 7.3.2
