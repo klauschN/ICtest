@@ -14,11 +14,11 @@ For an object of class ladle, plots either the pairwise scatter plot matrix usin
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{data}{object of class ladle}
-  \item{mapping}{aesthetic mapping, see documentation for \code{\link{ggpairs}}. If \code{x} has the class \code{mts} then this argument is not used.}
+  \item{mapping}{aesthetic mapping, see documentation for \code{\link[GGally]{ggpairs}}. If \code{x} has the class \code{mts} then this argument is not used.}
   \item{mapvar}{data.frame of the external variables used by the aesthetic mappings. If \code{x} has the class \code{mts} then this argument is not used.}
   \item{which}{if \code{"all"}, then all components of S in the ladle object are plotted. If \code{"k"}, then only the first k components are plotted,
    where the value of \code{k} is taken from the ladle object. This is only meaningful if \code{k} was at least 2.}
-  \item{...}{arguments passed on to \code{\link{ggpairs}}. If the component matrix has the class \code{mts}, \code{xts} or \code{zoo} then this argument is not used.}
+  \item{...}{arguments passed on to \code{\link[GGally]{ggpairs}}. If the component matrix has the class \code{mts}, \code{xts} or \code{zoo} then this argument is not used.}
   \item{environment}{not used but needed for consistency.}
 }
 
