@@ -196,13 +196,13 @@ kSearch <- function(X,
   )
   
   # Check if no valid k was found
-  if (length(est_dim) == 0 || is.na(est_dim)) {
+  if (length(est_dim) == 0 || is.null(est_dim)) {
     warning("No value of k found where the null hypothesis is not rejected.")
     
     # Return result with only tested_ks and p_values, but still assign class
     result <- list(
-      tested_ks = tested_ks,
-      p_values = pvals
+      tested.ks = tested_ks,
+      tested.ks.pvals = pvals
     )
   } else {
     # If a valid k was found, include the test results
@@ -210,7 +210,7 @@ kSearch <- function(X,
       test_results[[as.character(est_dim)]],
       list(
         tested.ks = tested_ks,
-        tested.ks.pvals= pvals
+        tested.ks.pvals = pvals
       )
     )
   }
