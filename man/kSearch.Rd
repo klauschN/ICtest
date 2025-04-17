@@ -6,10 +6,11 @@
 \usage{
 kSearch(
   X,
-  test_func,
-  method = c("forward", "backward", "binary"),
+  method,
+  search = c("forward", "backward", "binary"),
   alpha = 0.05,
   early_stop = TRUE,
+  min_dim = NULL,
   max_dim = NULL,
   ...
 )
@@ -17,31 +18,29 @@ kSearch(
 \arguments{
 \item{X}{A data matrix with \eqn{p>1} columns.}
 
-\item{test_func}{A function that performs a hypothesis test given \code{X} and dimension \code{k}. 
+\item{method}{A function that performs a hypothesis test given \code{X} and dimension \code{k}. 
 For more details on supported tests, see the
 "Details" section below.}
 
-\item{method}{A character string specifying the search strategy. 
+\item{search}{A character string specifying the search strategy. 
    Options are \code{forward} (default), \code{backward} and \code{binary}. For more details on search techniques, see the
 "Details" section below.}
 
-\item{alpha}{A numeric significance level (default = 0.05) used as the threshold for accepting the null hypothesis.}
+\item{alpha}{A numeric significance level (default = 0.05) used as the threshold for rejecting the null hypothesis.}
 
-\item{early_stop}{Logical. If \code{TRUE}, the search stops at the first \code{k} where the null hypothesis cannot be rejected
-(p-value > \code{alpha}). Note that in this case, the progress bar does not necessarily finish at 100\%. If \code{FALSE}, it continues through all plausible values of \code{k}.}
+\item{early_stop}{Logical. If \code{TRUE} (default), the search stops at the first \code{k} where the null hypothesis cannot be rejected. If \code{FALSE}, it continues through all plausible values of \code{k}.}
 
-\item{max_dim}{Optional integer to limit the maximum dimension to search (defaults to \code{ncol(X)}).}
+\item{min_dim}{Optional integer to limit the minimum dimension to search. By default, this is set according to the \code{method} being used.}
 
-\item{...}{Additional arguments passed to the testing function \code{test_func}.}
+\item{max_dim}{Optional integer to limit the maximum dimension to search. By default, this is set according to the \code{method} being used.}
+
+\item{...}{Additional arguments passed to the testing function \code{method}.}
 }
 \value{
-A list with the following components:
+An object of class \code{ictest} inheriting from \code{htest}, with additional elements:
 \describe{
-  \item{\code{test_name}}{A character string giving the name of the test function used.}
-  \item{\code{estimated_k}}{An integer indicating the estimated number of relevant components \code{k} where the null hypothesis \eqn{d \leq k} is first accepted (or the smallest if \code{early_stop = FALSE}).}
-  \item{\code{test_result_est_k}}{The test result for the estimated number of relevant components.}
-  \item{\code{tested_ks}}{An integer vector of all tested values of \code{k} during the search.}
-  \item{\code{p_values}}{A numeric vector of p-values corresponding to each tested \code{k}.}
+  \item{\code{tested.ks}}{An integer vector of all tested values of \code{k} during the search.}
+  \item{\code{tested.ks.pvals}}{A numeric vector of p-values corresponding to each tested \code{k}.}
 }
 }
 \description{
@@ -55,50 +54,35 @@ in the tested range.
 This function is designed to work with the following tests:
 \itemize{
   \item \code{\link[ICtest]{FOBIasymp}}, \code{\link[ICtest]{FOBIboot}}
-  \item \code{\link[ICtest]{ICSboot}}, 
+  \item \code{\link[ICtest]{ICSboot}}
   \item \code{\link[ICtest]{NGPPsim}}
-  \item \code{\link[ICtest]{PCAasymp}}, \code{\link[ICtest]{PCAboot}}, 
-  \item \code{\link[ICtest]{PCAschott}}, \item \code{\link[ICtest]{SIRasymp}}, 
-  \item \code{\link[ICtest]{SIRboot}}
+  \item \code{\link[ICtest]{PCAasymp}}, \code{\link[ICtest]{PCAboot}}, \code{\link[ICtest]{PCAschott}}
+  \item \code{\link[ICtest]{SIRasymp}}, \code{\link[ICtest]{SIRboot}}
 }
 These tests evaluate the null hypothesis that the true dimension \eqn{d \leq k}, and return
 a p-value indicating whether the null is rejected or not.
 
-The search methods work as follows:
+The search work as follows:
 \itemize{
   \item \code{"forward"} (default) performs a linear search starting from the smallest possible value of \code{k} and incrementing upward.
   \item \code{"backward"} performs a linear search starting from the largest possible value of \code{k} and decrementing downward.
-  \item \code{"binary"} first splits the possible range of \code{k}s in half and performs a binary search in the lower half. If no suitable \code{k} is found in the lower half, it continues the search in the upper half. This method may skip testing some possible \code{k} values, but it is typically faster than exhaustive linear search. The result from the binary search can be further refined using \code{"forward"} or \code{"backward"} search, if desired. Note that with this method the progress bar does not finish at 100 \%.
+  \item \code{"binary"} splits the possible range of \code{k}s in half and performs a binary search. This search may skip testing some possible \code{k} values, but it is typically faster than exhaustive linear search.
   }
 }
 \examples{
-# Example 1: Using FOBIboot for forward search
-set.seed(123)
-X <- matrix(rnorm(1000), ncol = 10)  # Create a random data matrix
-result <- kSearch(
-  X = X, 
-  test_func = FOBIboot, 
-  alpha = 0.05, 
-  method = "forward", 
-  early_stop = TRUE, 
-  n.boot = 1000
-)
-print(result)
-
-# Example 2: Using PCAasymp for forward search without early stop
-set.seed(1)
+# Using PCAasymp for forward search without early stop
 n <- 200
 S <- cbind(rnorm(n, sd = 2), rnorm(n, sd = 1.5), rnorm(n), rnorm(n), rnorm(n))
 A <- rorth(5)
 X <- S \%*\% t(A)
 result <- kSearch(
   X = X, 
-  test_func = PCAasymp, 
+  method = PCAasymp, 
   alpha = 0.05, 
-  method = "forward", 
+  search = "forward", 
   early_stop = FALSE, 
-  n.boot = 1000
 )
-print(result)
+
+result
 
 }

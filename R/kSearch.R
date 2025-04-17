@@ -9,7 +9,7 @@
 #' in the tested range.
 #'
 #' @param X A data matrix with \eqn{p>1} columns.
-#' @param test_func A function that performs a hypothesis test given \code{X} and dimension \code{k}. 
+#' @param method A function that performs a hypothesis test given \code{X} and dimension \code{k}. 
 #' For more details on supported tests, see the
 #' "Details" section below.
 #' 
@@ -17,97 +17,76 @@
 #' This function is designed to work with the following tests:
 #' \itemize{
 #'   \item \code{\link[ICtest]{FOBIasymp}}, \code{\link[ICtest]{FOBIboot}}
-#'   \item \code{\link[ICtest]{ICSboot}}, 
+#'   \item \code{\link[ICtest]{ICSboot}}
 #'   \item \code{\link[ICtest]{NGPPsim}}
-#'   \item \code{\link[ICtest]{PCAasymp}}, \code{\link[ICtest]{PCAboot}}, 
-#'   \item \code{\link[ICtest]{PCAschott}}, \item \code{\link[ICtest]{SIRasymp}}, 
-#'   \item \code{\link[ICtest]{SIRboot}}
+#'   \item \code{\link[ICtest]{PCAasymp}}, \code{\link[ICtest]{PCAboot}}, \code{\link[ICtest]{PCAschott}}
+#'   \item \code{\link[ICtest]{SIRasymp}}, \code{\link[ICtest]{SIRboot}}
 #' }
 #' These tests evaluate the null hypothesis that the true dimension \eqn{d \leq k}, and return
 #' a p-value indicating whether the null is rejected or not.
 #'
-#' @param method A character string specifying the search strategy. 
+#' @param search A character string specifying the search strategy. 
 #'    Options are \code{forward} (default), \code{backward} and \code{binary}. For more details on search techniques, see the
 #' "Details" section below.
 #' 
 #' @details
-#' The search methods work as follows:
+#' The search work as follows:
 #' \itemize{
 #'   \item \code{"forward"} (default) performs a linear search starting from the smallest possible value of \code{k} and incrementing upward.
 #'   \item \code{"backward"} performs a linear search starting from the largest possible value of \code{k} and decrementing downward.
-#'   \item \code{"binary"} first splits the possible range of \code{k}s in half and performs a binary search in the lower half. If no suitable \code{k} is found in the lower half, it continues the search in the upper half. This method may skip testing some possible \code{k} values, but it is typically faster than exhaustive linear search. The result from the binary search can be further refined using \code{"forward"} or \code{"backward"} search, if desired. Note that with this method the progress bar does not finish at 100 \%.
+#'   \item \code{"binary"} splits the possible range of \code{k}s in half and performs a binary search. This search may skip testing some possible \code{k} values, but it is typically faster than exhaustive linear search.
 #'   }
 #' 
-#' @param alpha A numeric significance level (default = 0.05) used as the threshold for accepting the null hypothesis.
-#' @param early_stop Logical. If \code{TRUE}, the search stops at the first \code{k} where the null hypothesis cannot be rejected
-#'   (p-value > \code{alpha}). Note that in this case, the progress bar does not necessarily finish at 100\%. If \code{FALSE}, it continues through all plausible values of \code{k}.
-#' @param max_dim Optional integer to limit the maximum dimension to search (defaults to \code{ncol(X)}).
-#' @param ... Additional arguments passed to the testing function \code{test_func}.
+#' @param alpha A numeric significance level (default = 0.05) used as the threshold for rejecting the null hypothesis.
+#' @param early_stop Logical. If \code{TRUE} (default), the search stops at the first \code{k} where the null hypothesis cannot be rejected. If \code{FALSE}, it continues through all plausible values of \code{k}.
+#' @param min_dim Optional integer to limit the minimum dimension to search. By default, this is set according to the \code{method} being used.
+#' @param max_dim Optional integer to limit the maximum dimension to search. By default, this is set according to the \code{method} being used.
+#' @param ... Additional arguments passed to the testing function \code{method}.
 #' 
-#' @return A list with the following components:
+#' @return An object of class \code{ictest} inheriting from \code{htest}, with additional elements:
 #' \describe{
-#'   \item{\code{test_name}}{A character string giving the name of the test function used.}
-#'   \item{\code{estimated_k}}{An integer indicating the estimated number of relevant components \code{k} where the null hypothesis \eqn{d \leq k} is first accepted (or the smallest if \code{early_stop = FALSE}).}
-#'   \item{\code{test_result_est_k}}{The test result for the estimated number of relevant components.}
-#'   \item{\code{tested_ks}}{An integer vector of all tested values of \code{k} during the search.}
-#'   \item{\code{p_values}}{A numeric vector of p-values corresponding to each tested \code{k}.}
+#'   \item{\code{tested.ks}}{An integer vector of all tested values of \code{k} during the search.}
+#'   \item{\code{tested.ks.pvals}}{A numeric vector of p-values corresponding to each tested \code{k}.}
 #' }
 #'
 #' @examples
-#' # Example 1: Using FOBIboot for forward search
-#' set.seed(123)
-#' X <- matrix(rnorm(1000), ncol = 10)  # Create a random data matrix
-#' result <- kSearch(
-#'   X = X, 
-#'   test_func = FOBIboot, 
-#'   alpha = 0.05, 
-#'   method = "forward", 
-#'   early_stop = TRUE, 
-#'   n.boot = 1000
-#' )
-#' print(result)
-#' 
-#' # Example 2: Using PCAasymp for forward search without early stop
-#' set.seed(1)
+#' # Using PCAasymp for forward search without early stop
 #' n <- 200
 #' S <- cbind(rnorm(n, sd = 2), rnorm(n, sd = 1.5), rnorm(n), rnorm(n), rnorm(n))
 #' A <- rorth(5)
 #' X <- S %*% t(A)
 #' result <- kSearch(
 #'   X = X, 
-#'   test_func = PCAasymp, 
+#'   method = PCAasymp, 
 #'   alpha = 0.05, 
-#'   method = "forward", 
+#'   search = "forward", 
 #'   early_stop = FALSE, 
-#'   n.boot = 1000
 #' )
-#' print(result)
+#' 
+#' result
 #'
 #' @export
 
 kSearch <- function(X, 
-                    test_func, 
-                    method = c("forward", "backward", "binary"), 
+                    method, 
+                    search = c("forward", "backward", "binary"), 
                     alpha = 0.05, 
-                    early_stop = TRUE, 
+                    early_stop = TRUE,
+                    min_dim = NULL,
                     max_dim = NULL,
                     ...) {
   
-  # Match the method argument
-  method <- match.arg(method)
+  # Match the search argument
+  search <- match.arg(search)
   
   # Number of columns (dimensions)
   p <- ncol(X)
-  max_dim <- if (is.null(max_dim)) p else min(p, max_dim)
   
-  # Define the ranges for k based on the test_func
-  k_range <- switch(deparse(substitute(test_func)),
+  # Define the ranges for k based on the method
+  k_range <- switch(deparse(substitute(method)),
                     "FOBIasymp" = 0:(p - 1),
                     "FOBIboot" = 0:(p - 1),
                     "ICSboot" = 1:(p - 2),
-                    # NGPPsim should be checked, help says k <= p, but
-                    # it throws an error so using p-1 for now:
-                    # while (crit > eps) { : missing value where TRUE/FALSE needed
                     "NGPPsim" = 1:(p-1),
                     "PCAasymp" = 0:(p - 2),
                     "PCAboot" = 0:(p - 2),
@@ -117,9 +96,11 @@ kSearch <- function(X,
                     stop("Unknown test function")
   )
 
-  # Limit k_range to max_dim if necessary
-  k_range <- k_range[k_range <= max_dim]  
-  
+  # Limit k_range to min_dim and max_dim if necessary
+  min_dim <- if (is.null(min_dim)) min(k_range) else max(min(k_range), min_dim)
+  max_dim <- if (is.null(max_dim)) p else min(p, max_dim)
+  k_range <- k_range[k_range >= min_dim & k_range <= max_dim]
+
   # Load the necessary library for progress bar
   library(progress)
   
@@ -136,13 +117,12 @@ kSearch <- function(X,
   # Initialize variables to store the results
   tested_ks <- c()
   pvals <- c()
-  found_k <- NULL
   test_results <- list()
   
   # Function to execute the test for a given k
   test_k <- function(k) {
     test_result <- tryCatch({
-      test_func(X, k, ...)
+      method(X, k, ...)
     }, error = function(e) {
       # Print the error message and prompt the user
       message("\nERROR: The test function encountered an issue.")
@@ -152,12 +132,8 @@ kSearch <- function(X,
     
     tested_ks <<- c(tested_ks, k)
     pvals <<- c(pvals, test_result$p.value)
-    
-    # Store the test result for the last valid dimension
-    if (test_result$p.value > alpha) {
-      test_results[[as.character(k)]] <<- test_result
-    }
-    
+    test_results[[as.character(k)]] <<- test_result
+  
     return(test_result$p.value)
   }
   
@@ -187,66 +163,92 @@ kSearch <- function(X,
     return(tail(tested_ks[pvals > alpha], 1))  # Last accepted if no early stop
   }
   
-  # Binary search with progress bar
+  # Binary search
   binary_search <- function() {
     low <- min(k_range)
     high <- max(k_range)
     best_k <- NULL
-
-    # Helper function to search a range
-    search_half <- function(low, high) {
-      local_best <- NULL
-      while (low <= high) {
-        mid <- floor((low + high) / 2)
-        pval <- test_k(mid)
-        pb$tick()
-        if (pval > alpha) {
-          local_best <- min(mid, local_best)
-          if (early_stop){
-            return(local_best)
-          } 
-          high <- mid - 1
-        } else {
-          low <- mid + 1
+    
+    while (low <= high) {
+      mid <- floor((low + high) / 2)
+      pval <- test_k(mid)
+      pb$tick()
+      
+      if (pval > alpha) {
+        best_k <- mid
+        if (early_stop) {
+          return(best_k)
         }
+        high <- mid - 1  # keep searching left for possibly smaller valid k
+      } else {
+        low <- mid + 1
       }
-      return(local_best)
-    }
-    
-    # Split k_range into halves
-    mid_point <- floor((min(k_range) + max(k_range)) / 2)
-    
-    # First prefer searching lower half
-    lower_k <- search_half(min(k_range), mid_point)
-    
-    if (!is.null(lower_k)) {
-      best_k <- lower_k
-    } else {
-      # Only search upper half if lower half had no valid k
-      upper_k <- search_half(mid_point + 1, max(k_range))
-      if (!is.null(upper_k)) {
-        best_k <- upper_k
-        }
     }
     
     return(best_k)
   }
   
-  # Execute the chosen search method
-  est_dim <- switch(method,
+  # Execute the chosen search
+  est_dim <- switch(search,
                     forward = forward_search(),
                     backward = backward_search(),
                     binary = binary_search()
   )
   
-  # Line break before returning result
-  cat("\n")  
-  return(list(
-    test_name = deparse(substitute(test_func)),
-    estimated_k = est_dim,
-    test_result_est_k = test_results[[as.character(est_dim)]],
-    tested_ks = tested_ks,
-    p_values = pvals
-  ))
+  # Check if no valid k was found
+  if (length(est_dim) == 0 || is.na(est_dim)) {
+    warning("No value of k found where the null hypothesis is not rejected.")
+    
+    # Return result with only tested_ks and p_values, but still assign class
+    result <- list(
+      tested_ks = tested_ks,
+      p_values = pvals
+    )
+  } else {
+    # If a valid k was found, include the test results
+    result <- c(
+      test_results[[as.character(est_dim)]],
+      list(
+        tested.ks = tested_ks,
+        tested.ks.pvals= pvals
+      )
+    )
+  }
   
+  # Assign the 'kSearch' class to the result, regardless of the outcome
+  class(result) <- c("kSearch", "ictest", "htest")
+  
+  # Return the result
+  cat("\n")
+  return(result)
 }
+
+#' @exportS3Method summary kSearch
+summary.kSearch <- function(object, ...) {
+  cat(paste0("kSearch estimator using \"", object$method, "\" for ", object$data.name, "\n"))
+  cat("k:", object$k, "\n")
+}
+
+#' @exportS3Method print kSearch
+print.kSearch <- function(x, digits = getOption("digits"), prefix = "\t", ...) {
+  # Inform about the estimated k being printed
+  if (!is.null(x$k)) {
+    cat("Results for estimated k = ", x$k, ":\n", sep = "")
+    # Call the inherited print method from htest
+    NextMethod()
+  }
+  
+  #  Add the additional information for kSearch
+  if (!is.null(x$tested.ks) && !is.null(x$tested.ks.pvals)) {
+    cat("Tested k values and respective p-values:\n")
+    tested_ks <- x$tested.ks
+    p_values <- x$tested.ks.pvals
+    for (i in seq_along(tested_ks)) {
+      cat("k = ", tested_ks[i], ", p-value = ", format.pval(p_values[i], digits = max(1L, digits - 3L)), "\n", sep ="")
+    }
+  }
+  
+  cat("\n")
+  invisible(x)
+}
+
