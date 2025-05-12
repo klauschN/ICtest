@@ -194,10 +194,12 @@ kSearch <- function(X,
       }
       
       if (pval > alpha && early_stop) {
-        return(k+1)
-      }
+        
+        return(min(k+1, max(k_range)))
+       
+        }
     }
-    return(tail(tested_ks[pvals > alpha], 1))  # Last accepted if no early stop
+    return(min(tail(tested_ks[pvals > alpha], 1) + 1, max(k_range)))  #
   }
   
   # Binary search
