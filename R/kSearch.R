@@ -1,5 +1,7 @@
 #' @title 
 #' Relevant Component Estimation via Iterative Search
+#' 
+#' @author Katariina Perkonoja
 #'
 #' @description 
 #' Performs dimension estimation using various search strategies (forward, backward, binary)
@@ -32,13 +34,15 @@
 #' @details
 #' The search work as follows:
 #' \itemize{
-#'   \item \code{"forward"} (default) performs a linear search starting from the smallest possible value of \code{k} and incrementing upward.
-#'   \item \code{"backward"} performs a linear search starting from the largest possible value of \code{k} and decrementing downward.
-#'   \item \code{"binary"} splits the possible range of \code{k}s in half and performs a binary search. This search may skip testing some possible \code{k} values, but it is typically faster than exhaustive linear search.
+#'   \item \code{"forward"} (default) performs a linear search starting from the smallest possible value of \code{k} and incrementing upward. Returns the smallest \code{k} where the null is not rejected.
+#'   \item \code{"backward"} performs a linear search starting from the largest possible value of \code{k} and decrementing downward. Returns \code{k}+1, where \code{k} is the largest dimension where the null is not rejected.
+#'   \item \code{"binary"} splits the possible range of \code{k}s in half and performs a binary search. This search may skip testing some possible \code{k} values, but it is typically faster than linear search.
 #'   }
 #' 
 #' @param alpha A numeric significance level (default = 0.05) used as the threshold for rejecting the null hypothesis.
-#' @param early_stop Logical. If \code{TRUE} (default), the search stops at the first \code{k} where the null hypothesis cannot be rejected. If \code{FALSE}, it continues through all plausible values of \code{k}.
+#' @param early_stop Logical or \code{NULL}. Controls whether the search stops early once the null hypothesis is not rejected. 
+#' If \code{NULL} (default), the behavior is determined by the selected search strategy: \code{TRUE} for \code{"forward"} and \code{"backward"}, 
+#' and \code{FALSE} for \code{"binary"}. If explicitly set to \code{TRUE} or \code{FALSE}, this overrides the strategy's default behavior.
 #' @param min_dim Optional integer to limit the minimum dimension to search. By default, this is set according to the \code{method} being used.
 #' @param max_dim Optional integer to limit the maximum dimension to search. By default, this is set according to the \code{method} being used.
 #' @param ... Additional arguments passed to the testing function \code{method}.
@@ -50,9 +54,11 @@
 #' }
 #'
 #' @examples
-#' # Using PCAasymp for forward search without early stop
+#' # Applying forward search with PCAasymp while evaluating 
+#' # all valid values of k (early_stop = FALSE)
 #' n <- 200
-#' S <- cbind(rnorm(n, sd = 2), rnorm(n, sd = 1.5), rnorm(n), rnorm(n), rnorm(n))
+#' S <- cbind(rnorm(n, sd = 2), rnorm(n, sd = 1.5),  
+#'            rnorm(n), rnorm(n), rnorm(n))
 #' A <- rorth(5)
 #' X <- S %*% t(A)
 #' result <- kSearch(
@@ -60,7 +66,7 @@
 #'   method = PCAasymp, 
 #'   alpha = 0.05, 
 #'   search = "forward", 
-#'   early_stop = FALSE, 
+#'   early_stop = FALSE 
 #' )
 #' 
 #' result
@@ -71,7 +77,7 @@ kSearch <- function(X,
                     method, 
                     search = c("forward", "backward", "binary"), 
                     alpha = 0.05, 
-                    early_stop = TRUE,
+                    early_stop = NULL,
                     min_dim = NULL,
                     max_dim = NULL,
                     ...) {
@@ -100,19 +106,18 @@ kSearch <- function(X,
   min_dim <- if (is.null(min_dim)) min(k_range) else max(min(k_range), min_dim)
   max_dim <- if (is.null(max_dim)) p else min(p, max_dim)
   k_range <- k_range[k_range >= min_dim & k_range <= max_dim]
-
-  # Load the necessary library for progress bar
+  
+  # Default early_stop logic based on search method if not provided
+  if (is.null(early_stop)) {
+    early_stop <- switch(search,
+                         forward = TRUE,
+                         backward = TRUE,
+                         binary = FALSE)
+  }
+  
+  # Initialize empty progress bar
   library(progress)
-  
-  pb <- progress_bar$new(
-    format = "  Searching [:bar] :percent :elapsed",
-    total = length(k_range), clear = FALSE, width = 60,
-    show_after = 0
-  )
-  
-  pb$tick(0)
-  flush.console()
-  
+  pb <- NULL
   
   # Initialize variables to store the results
   tested_ks <- c()
@@ -139,25 +144,57 @@ kSearch <- function(X,
   
   # Forward search with progress bar
   forward_search <- function() {
+    
+    
+    if (early_stop == FALSE){
+      
+      pb <- progress_bar$new(
+        format = "  Searching [:bar] :percent :elapsed",
+        total = length(k_range), clear = FALSE, width = 60,
+        show_after = 0
+      )
+      
+    }
 
     for (k in k_range) {
+      
       pval <- test_k(k)
-      pb$tick()  # Update progress bar
+      
+      if (!is.null(pb)) {
+        
+        pb$tick()  
+      }
       if (pval > alpha && early_stop) {
+        
         return(k)
       }
     }
-    return(head(tested_ks[pvals > alpha], 1))  # First accepted if no early stop
+    return(head(tested_ks[pvals > alpha], 1))
   }
   
   # Backward search with progress bar
   backward_search <- function() {
+    
+    if (early_stop == FALSE){
+      
+      pb <- progress_bar$new(
+        format = "  Searching [:bar] :percent :elapsed",
+        total = length(k_range), clear = FALSE, width = 60,
+        show_after = 0
+      )
+      
+    }
 
     for (k in rev(k_range)) {
+      
       pval <- test_k(k)
-      pb$tick()  # Update progress bar
+      
+      if (!is.null(pb)) {
+        pb$tick()
+      }
+      
       if (pval > alpha && early_stop) {
-        return(k)
+        return(k+1)
       }
     }
     return(tail(tested_ks[pvals > alpha], 1))  # Last accepted if no early stop
@@ -165,22 +202,45 @@ kSearch <- function(X,
   
   # Binary search
   binary_search <- function() {
+    
+    if (early_stop == FALSE){
+      
+      pb <- progress_bar$new(
+        format = "  Searching [:bar] :percent :elapsed",
+        total = length(log2(max(k_range))), clear = FALSE, width = 60,
+        show_after = 0
+      )
+      
+    }
+    
     low <- min(k_range)
     high <- max(k_range)
     best_k <- NULL
     
     while (low <= high) {
+      
       mid <- floor((low + high) / 2)
       pval <- test_k(mid)
-      pb$tick()
+      
+      if (!is.null(pb) && !pb$finished) {
+        
+        pb$tick()
+        
+      }
       
       if (pval > alpha) {
+        
         best_k <- mid
+        
         if (early_stop) {
+          
           return(best_k)
         }
+        
         high <- mid - 1  # keep searching left for possibly smaller valid k
+        
       } else {
+        
         low <- mid + 1
       }
     }

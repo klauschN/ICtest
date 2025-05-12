@@ -9,7 +9,7 @@ kSearch(
   method,
   search = c("forward", "backward", "binary"),
   alpha = 0.05,
-  early_stop = TRUE,
+  early_stop = NULL,
   min_dim = NULL,
   max_dim = NULL,
   ...
@@ -28,7 +28,9 @@ For more details on supported tests, see the
 
 \item{alpha}{A numeric significance level (default = 0.05) used as the threshold for rejecting the null hypothesis.}
 
-\item{early_stop}{Logical. If \code{TRUE} (default), the search stops at the first \code{k} where the null hypothesis cannot be rejected. If \code{FALSE}, it continues through all plausible values of \code{k}.}
+\item{early_stop}{Logical or \code{NULL}. Controls whether the search stops early once the null hypothesis is not rejected. 
+If \code{NULL} (default), the behavior is determined by the selected search strategy: \code{TRUE} for \code{"forward"} and \code{"backward"}, 
+and \code{FALSE} for \code{"binary"}. If explicitly set to \code{TRUE} or \code{FALSE}, this overrides the strategy's default behavior.}
 
 \item{min_dim}{Optional integer to limit the minimum dimension to search. By default, this is set according to the \code{method} being used.}
 
@@ -64,15 +66,17 @@ a p-value indicating whether the null is rejected or not.
 
 The search work as follows:
 \itemize{
-  \item \code{"forward"} (default) performs a linear search starting from the smallest possible value of \code{k} and incrementing upward.
-  \item \code{"backward"} performs a linear search starting from the largest possible value of \code{k} and decrementing downward.
-  \item \code{"binary"} splits the possible range of \code{k}s in half and performs a binary search. This search may skip testing some possible \code{k} values, but it is typically faster than exhaustive linear search.
+  \item \code{"forward"} (default) performs a linear search starting from the smallest possible value of \code{k} and incrementing upward. Returns the smallest \code{k} where the null is not rejected.
+  \item \code{"backward"} performs a linear search starting from the largest possible value of \code{k} and decrementing downward. Returns \code{k}+1, where \code{k} is the largest dimension where the null is not rejected.
+  \item \code{"binary"} splits the possible range of \code{k}s in half and performs a binary search. This search may skip testing some possible \code{k} values, but it is typically faster than linear search.
   }
 }
 \examples{
-# Using PCAasymp for forward search without early stop
+# Applying forward search with PCAasymp while evaluating 
+# all valid values of k (early_stop = FALSE)
 n <- 200
-S <- cbind(rnorm(n, sd = 2), rnorm(n, sd = 1.5), rnorm(n), rnorm(n), rnorm(n))
+S <- cbind(rnorm(n, sd = 2), rnorm(n, sd = 1.5),  
+           rnorm(n), rnorm(n), rnorm(n))
 A <- rorth(5)
 X <- S \%*\% t(A)
 result <- kSearch(
@@ -80,9 +84,12 @@ result <- kSearch(
   method = PCAasymp, 
   alpha = 0.05, 
   search = "forward", 
-  early_stop = FALSE, 
+  early_stop = FALSE 
 )
 
 result
 
+}
+\author{
+Katariina Perkonoja
 }
