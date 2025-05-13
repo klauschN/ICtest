@@ -67,7 +67,7 @@ a p-value indicating whether the null is rejected or not.
 The search work as follows:
 \itemize{
   \item \code{"forward"} (default) performs a linear search starting from the smallest possible value of \code{k} and incrementing upward. Returns the smallest \code{k} where the null is not rejected.
-  \item \code{"backward"} performs a linear search starting from the largest possible value of \code{k} and decrementing downward. Returns \code{k}+1, where \code{k} is the largest dimension where the null is not rejected.
+  \item \code{"backward"} performs a linear search starting from the largest possible value of \code{k} and decrementing downward. Returns \code{k}+1, where \code{k} is the largest dimension where the null is rejected.
   \item \code{"binary"} splits the possible range of \code{k}s in half and performs a binary search. This search may skip testing some possible \code{k} values, but it is typically faster than linear search.
   }
 }

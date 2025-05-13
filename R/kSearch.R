@@ -35,7 +35,7 @@
 #' The search work as follows:
 #' \itemize{
 #'   \item \code{"forward"} (default) performs a linear search starting from the smallest possible value of \code{k} and incrementing upward. Returns the smallest \code{k} where the null is not rejected.
-#'   \item \code{"backward"} performs a linear search starting from the largest possible value of \code{k} and decrementing downward. Returns \code{k}+1, where \code{k} is the largest dimension where the null is not rejected.
+#'   \item \code{"backward"} performs a linear search starting from the largest possible value of \code{k} and decrementing downward. Returns \code{k}+1, where \code{k} is the largest dimension where the null is rejected.
 #'   \item \code{"binary"} splits the possible range of \code{k}s in half and performs a binary search. This search may skip testing some possible \code{k} values, but it is typically faster than linear search.
 #'   }
 #' 
@@ -193,13 +193,13 @@ kSearch <- function(X,
         pb$tick()
       }
       
-      if (pval > alpha && early_stop) {
+      if (pval <= alpha && early_stop) {
         
         return(min(k+1, max(k_range)))
        
         }
     }
-    return(min(tail(tested_ks[pvals > alpha], 1) + 1, max(k_range)))  #
+    return(min(head(tested_ks[pvals <= alpha], 1) + 1, max(k_range)))  #
   }
   
   # Binary search
