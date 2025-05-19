@@ -1,4 +1,4 @@
-components <- function(x, ...) UseMethod("components")
+#components <- function(x, ...) UseMethod("components")
 
 components.ictest <- function (x, which="all", ...)
 {

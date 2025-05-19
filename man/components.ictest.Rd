@@ -1,5 +1,4 @@
-\name{components}
-\alias{components}
+\name{components.ladle}
 \alias{components.ictest}
 \alias{components.ladle}
 
@@ -11,7 +10,6 @@ Function to extract components from an object. If the object is of class ictest 
 are extracted or only those which were interesting under the null hypothesis.
 }
 \usage{
-components(x, ...)
 \method{components}{ictest}(x, which = "all", ...)
 \method{components}{ladle}(x, which = "all", ...)
 }

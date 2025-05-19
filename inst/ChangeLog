@@ -4,6 +4,9 @@ Version 0.3-6:
 
 * Fixing some missing links in help files when linking to functions in external packages
 * Fixing a mistake in rorth
+* Adding K. Perkonoja as package author
+* The function components is now declated in ICS and here only the method remains
+* New function kSearch
 
 
 Version 0.3-5:

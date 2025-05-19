@@ -116,7 +116,7 @@ kSearch <- function(X,
   }
   
   # Initialize empty progress bar
-  library(progress)
+  #library(progress)
   pb <- NULL
   
   # Initialize variables to store the results
