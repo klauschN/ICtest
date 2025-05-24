@@ -119,13 +119,8 @@ kSearch <- function(X,
   #library(progress)
   pb <- NULL
   
-  # Initialize variables to store the results
-  tested_ks <- c()
-  pvals <- c()
-  test_results <- list()
-  
   # Function to execute the test for a given k
-  test_k <- function(k) {
+  test_k <- function(k, tested_ks, pvals, test_results) {
     test_result <- tryCatch({
       method(X, k, ...)
     }, error = function(e) {
@@ -134,86 +129,120 @@ kSearch <- function(X,
       message("Please check if the test function is used correctly\nand that all necessary parameters are passed.\n")
       stop(e)  # Stop the function with the error
     })
-    
-    tested_ks <<- c(tested_ks, k)
-    pvals <<- c(pvals, test_result$p.value)
-    test_results[[as.character(k)]] <<- test_result
   
-    return(test_result$p.value)
+    tested_ks <- c(tested_ks, k)
+    pvals <- c(pvals, test_result$p.value)
+    test_results[[as.character(k)]] <- test_result
+    
+    list(
+      pval = test_result$p.value,
+      tested_ks = tested_ks,
+      pvals = pvals,
+      test_results = test_results
+    )
   }
   
   # Forward search with progress bar
   forward_search <- function() {
     
+    tested_ks <- c()
+    pvals <- c()
+    test_results <- list()
     
-    if (early_stop == FALSE){
+    if (early_stop == FALSE) {
       
       pb <- progress_bar$new(
         format = "  Searching [:bar] :percent :elapsed",
         total = length(k_range), clear = FALSE, width = 60,
         show_after = 0
       )
-      
-    }
-
+    } 
+    
     for (k in k_range) {
       
-      pval <- test_k(k)
+      res <- test_k(k, tested_ks, pvals, test_results)
+      tested_ks <- res$tested_ks
+      pvals <- res$pvals
+      test_results <- res$test_results
       
-      if (!is.null(pb)) {
+      if (!is.null(pb)) pb$tick()
+      
+    
+      if (res$pval > alpha && early_stop){
         
-        pb$tick()  
-      }
-      if (pval > alpha && early_stop) {
+        return(list(est_dim = k, 
+                    tested_ks = tested_ks, 
+                    pvals = pvals, 
+                    test_results = test_results))
         
-        return(k)
       }
     }
-    return(head(tested_ks[pvals > alpha], 1))
+    
+    return(list(
+      est_dim = head(tested_ks[pvals > alpha], 1),
+      tested_ks = tested_ks,
+      pvals = pvals,
+      test_results = test_results
+    ))
   }
   
   # Backward search with progress bar
   backward_search <- function() {
     
-    if (early_stop == FALSE){
+    tested_ks <- pvals <- c()
+    test_results <- list()
+    
+    if (early_stop == FALSE) {
       
       pb <- progress_bar$new(
         format = "  Searching [:bar] :percent :elapsed",
         total = length(k_range), clear = FALSE, width = 60,
         show_after = 0
       )
-      
-    }
-
+    } 
+    
     for (k in rev(k_range)) {
       
-      pval <- test_k(k)
+      res <- test_k(k, tested_ks, pvals, test_results)
+      tested_ks <- res$tested_ks
+      pvals <- res$pvals
+      test_results <- res$test_results
       
-      if (!is.null(pb)) {
-        pb$tick()
-      }
+      if (!is.null(pb)) pb$tick()
       
-      if (pval <= alpha && early_stop) {
+      if (res$pval <= alpha && early_stop) {
         
-        return(min(k+1, max(k_range)))
-       
-        }
+        return(list(est_dim = min(k + 1, max(k_range)), 
+                    tested_ks = tested_ks,
+                    pvals = pvals,
+                    test_results = test_results
+                    ))
+        
+      }
     }
-    return(min(head(tested_ks[pvals <= alpha], 1) + 1, max(k_range)))  #
+    
+    return(list(
+      est_dim = min(head(tested_ks[pvals <= alpha], 1) + 1, max(k_range)),
+      tested_ks = tested_ks,
+      pvals = pvals,
+      test_results = test_results
+    ))
   }
   
   # Binary search
   binary_search <- function() {
     
-    if (early_stop == FALSE){
+    tested_ks <- pvals <- c()
+    test_results <- list()
+    
+    if (early_stop == FALSE) {
       
       pb <- progress_bar$new(
         format = "  Searching [:bar] :percent :elapsed",
         total = length(log2(max(k_range))), clear = FALSE, width = 60,
         show_after = 0
-      )
-      
-    }
+        )
+      }
     
     low <- min(k_range)
     high <- max(k_range)
@@ -222,40 +251,55 @@ kSearch <- function(X,
     while (low <= high) {
       
       mid <- floor((low + high) / 2)
-      pval <- test_k(mid)
+      res <- test_k(mid, tested_ks, pvals, test_results)
+      tested_ks <- res$tested_ks
+      pvals <- res$pvals
+      test_results <- res$test_results
       
       if (!is.null(pb) && !pb$finished) {
         
         pb$tick()
-        
-      }
       
-      if (pval > alpha) {
+        }
+      
+      if (res$pval > alpha) {
         
         best_k <- mid
         
         if (early_stop) {
           
-          return(best_k)
+          return(list(est_dim = best_k, 
+                      tested_ks = tested_ks,
+                      pvals = pvals,
+                      test_results = test_results))
+          
         }
         
-        high <- mid - 1  # keep searching left for possibly smaller valid k
+        high <- mid - 1 # keep searching left for possibly smaller valid k
         
       } else {
         
         low <- mid + 1
+        
       }
     }
     
-    return(best_k)
+    return(list(est_dim = best_k,  
+                tested_ks = tested_ks,
+                pvals = pvals,
+                test_results = test_results))
   }
   
-  # Execute the chosen search
-  est_dim <- switch(search,
-                    forward = forward_search(),
-                    backward = backward_search(),
-                    binary = binary_search()
-  )
+  search_result <- switch(search,
+                          forward = forward_search(),
+                          backward = backward_search(),
+                          binary = binary_search())
+  
+  est_dim <- search_result$est_dim
+  tested_ks <- search_result$tested_ks
+  pvals <- search_result$pvals
+  test_results <- search_result$test_results
+  
   
   # Check if no valid k was found
   if (length(est_dim) == 0 || is.null(est_dim)) {
@@ -285,12 +329,71 @@ kSearch <- function(X,
   return(result)
 }
 
+#' @title 
+#' Summarizing an Object of Class kSearch
+#'
+#' @description 
+#' Summarizes a \code{kSearch} object.
+#'
+#' @usage 
+#' \method{summary}{kSearch}(object)
+#'
+#' @param object An object of class \code{kSearch}.
+#'
+#' @author 
+#' Katariina Perkonoja
+#'
+#' @seealso 
+#' \code{\link{print.kSearch}}, \code{\link{kSearch}}
+#'
+#' @examples 
+#' n <- 500
+#' S <- cbind(rnorm(n, sd = 2), rnorm(n, sd = 1.5), rnorm(n), rnorm(n))
+#' A <- rorth(4)
+#' X <- S %*% t(A)
+#' result <- kSearch(X, method = PCAasymp)
+#' summary(result)
+#'
+#' @keywords methods
+#' @keywords print
+#'
+#' @method summary kSearch
 #' @exportS3Method summary kSearch
 summary.kSearch <- function(object, ...) {
   cat(paste0("kSearch estimator using \"", object$method, "\" for ", object$data.name, "\n"))
   cat("k:", object$k, "\n")
 }
 
+#' @title 
+#' Printing an Object of Class kSearch
+#'
+#' @description 
+#' Basic printing of an object of class \code{kSearch}. Prints the estimated dimension \code{k} along with
+#' all tested values and corresponding p-values.
+#'
+#' @usage 
+#' \method{print}{kSearch}(x)
+#'
+#' @param x An object of class \code{kSearch}.
+#'
+#' @author 
+#' Katariina Perkonoja
+#'
+#' @seealso 
+#' \code{\link{summary.kSearch}}, \code{\link{kSearch}}
+#'
+#' @examples 
+#' n <- 500
+#' S <- cbind(rnorm(n, sd = 2), rnorm(n, sd = 1.5), rnorm(n), rnorm(n))
+#' A <- rorth(4)
+#' X <- S %*% t(A)
+#' result <- kSearch(X, method = PCAasymp)
+#' result
+#'
+#' @keywords methods
+#' @keywords print
+#'
+#' @method print kSearch
 #' @exportS3Method print kSearch
 print.kSearch <- function(x, digits = getOption("digits"), prefix = "\t", ...) {
   # Inform about the estimated k being printed
