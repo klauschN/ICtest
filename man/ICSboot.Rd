@@ -106,7 +106,7 @@ A <- matrix(rnorm(36), ncol = 6)
 X <- S \%*\% t(A)
 
 # n.boot is small for demonstration purpose, should be larger
-ICSboot(X, k=1, n.boot=20)
+ICSboot(X, k=1, n.boot=10)
 
 if(require("ICSNP")){
 
@@ -114,7 +114,7 @@ myTyl <- function(X,...) HR.Mest(X,...)$scatter
 myT <- function(X,...) tM(X,...)$V
 
 # n.boot is small for demonstration purpose, should be larger
-ICSboot(X, k=3, S1=myT, S2=myTyl, s.boot = "B2", n.boot=20)
+ICSboot(X, k=3, S1=myT, S2=myTyl, s.boot = "B2", n.boot=10)
 }
 }
 
