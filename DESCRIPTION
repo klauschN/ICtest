@@ -2,12 +2,12 @@ Package: ICtest
 Type: Package
 Title: Estimating and Testing the Number of Interesting Components in Linear Dimension Reduction
 Version: 0.3-6
-Date: 2025-05-19
+Date: 2025-05-24
 Authors@R: 
     c(person(given = "Klaus",
              family = "Nordhausen",
              role = c("aut", "cre"),
-             email = "klaus.k.nordhausen@jyu.fi",
+             email = "klausnordhausenR@gmail.com",
              comment = c(ORCID = "0000-0002-3758-8501")),
       person(given = "Hannu",
              family = "Oja",
@@ -25,7 +25,7 @@ Authors@R:
              role = "aut",
              comment = c(ORCID = "0000-0002-2150-2769"))
       )
-Maintainer: Klaus Nordhausen <klaus.k.nordhausen@jyu.fi> 
+Maintainer: Klaus Nordhausen <klausnordhausenR@gmail.com> 
 LinkingTo: Rcpp, RcppArmadillo
 Depends: JADE, ICS (>= 1.4-0), ggplot2
 Imports: stats, graphics, Rcpp (>= 0.12.3), ICSNP, survey, GGally, png, zoo, xts, RcppRoll, mvtnorm, progress, utils
