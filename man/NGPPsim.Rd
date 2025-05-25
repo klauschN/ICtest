@@ -13,7 +13,7 @@ NGPPsim(X, k, nl = c("skew", "pow3"), alpha = 0.8, N = 1000, eps = 1e-6,
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{X}{Numeric matrix with n rows corresponding to the observations and p columns corresponding to the variables.}
-  \item{k}{Number of components to estimate, \eqn{1 \leq k \leq p}{1 <= k <= p}.}
+  \item{k}{Number of components to estimate, \eqn{1 \leq k \leq p}{1 <= k <= p - 1}.}
   \item{nl}{Vector of non-linearities, a convex combination of the corresponding squared objective functions of which is then used as the projection index. The choices include \code{"skew"} (skewness), \code{"pow3"} (excess kurtosis), \code{"tanh"} (\eqn{log(cosh)}) and \code{"gauss"} (Gaussian function).}
   \item{alpha}{Vector of positive weights between 0 and 1 given to the non-linearities. The length of \code{alpha} should be either one less than the number of non-linearities in which case the missing weight is chosen so that \code{alpha} sums to one, or equal to the number of non-linearities in which case the weights are used as such. No boundary checks for the weights are done.}
   \item{N}{Number of normal samples to be used in simulating the distribution of the test statistic under the null hypothesis.}
