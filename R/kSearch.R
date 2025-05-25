@@ -336,9 +336,10 @@ kSearch <- function(X,
 #' Summarizes a \code{kSearch} object.
 #'
 #' @usage 
-#' \method{summary}{kSearch}(object)
+#' \method{summary}{kSearch}(object, ...)
 #'
 #' @param object An object of class \code{kSearch}.
+#' @param ... Further arguments.
 #'
 #' @author 
 #' Katariina Perkonoja
@@ -372,9 +373,10 @@ summary.kSearch <- function(object, ...) {
 #' all tested values and corresponding p-values.
 #'
 #' @usage 
-#' \method{print}{kSearch}(x)
+#' \method{print}{kSearch}(x, ...)
 #'
 #' @param x An object of class \code{kSearch}.
+#' @param ... Further arguments.
 #'
 #' @author 
 #' Katariina Perkonoja

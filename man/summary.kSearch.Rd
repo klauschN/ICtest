@@ -4,10 +4,12 @@
 \alias{summary.kSearch}
 \title{Summarizing an Object of Class kSearch}
 \usage{
-\method{summary}{kSearch}(object)
+\method{summary}{kSearch}(object, ...)
 }
 \arguments{
 \item{object}{An object of class \code{kSearch}.}
+
+\item{...}{Further arguments.}
 }
 \description{
 Summarizes a \code{kSearch} object.

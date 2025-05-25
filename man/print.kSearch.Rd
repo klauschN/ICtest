@@ -4,10 +4,12 @@
 \alias{print.kSearch}
 \title{Printing an Object of Class kSearch}
 \usage{
-\method{print}{kSearch}(x)
+\method{print}{kSearch}(x, ...)
 }
 \arguments{
 \item{x}{An object of class \code{kSearch}.}
+
+\item{...}{Further arguments.}
 }
 \description{
 Basic printing of an object of class \code{kSearch}. Prints the estimated dimension \code{k} along with
