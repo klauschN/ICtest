@@ -373,7 +373,7 @@ summary.kSearch <- function(object, ...) {
 #' all tested values and corresponding p-values.
 #'
 #' @usage 
-#' \method{print}{kSearch}(x, ...)
+#' \method{print}{kSearch}(x, digits = getOption("digits"), ...)
 #'
 #' @param x An object of class \code{kSearch}.
 #' @param digits Number of significant digits to use when printing p-values. Defaults to \code{getOption("digits")}.

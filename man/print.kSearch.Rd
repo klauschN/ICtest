@@ -4,7 +4,7 @@
 \alias{print.kSearch}
 \title{Printing an Object of Class kSearch}
 \usage{
-\method{print}{kSearch}(x, ...)
+\method{print}{kSearch}(x, digits = getOption("digits"), ...)
 }
 \arguments{
 \item{x}{An object of class \code{kSearch}.}
