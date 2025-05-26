@@ -114,7 +114,7 @@ myTyl <- function(X,...) HR.Mest(X,...)$scatter
 myT <- function(X,...) tM(X,...)$V
 
 # n.boot is small for demonstration purpose, should be larger
-ICSboot(X, k=3, S1=myT, S2=myTyl, s.boot = "B2", n.boot=10)
+ICSboot(X, k=3, S1=myT, S2=myTyl, s.boot = "B2", n.boot=4)
 }
 }
 
