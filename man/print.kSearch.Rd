@@ -9,6 +9,8 @@
 \arguments{
 \item{x}{An object of class \code{kSearch}.}
 
+\item{digits}{Number of significant digits to use when printing p-values. Defaults to \code{getOption("digits")}.}
+
 \item{...}{Further arguments.}
 }
 \description{

@@ -376,6 +376,7 @@ summary.kSearch <- function(object, ...) {
 #' \method{print}{kSearch}(x, ...)
 #'
 #' @param x An object of class \code{kSearch}.
+#' @param digits Number of significant digits to use when printing p-values. Defaults to \code{getOption("digits")}.
 #' @param ... Further arguments.
 #'
 #' @author 
@@ -397,7 +398,7 @@ summary.kSearch <- function(object, ...) {
 #'
 #' @method print kSearch
 #' @exportS3Method print kSearch
-print.kSearch <- function(x, digits = getOption("digits"), prefix = "\t", ...) {
+print.kSearch <- function(x, digits = getOption("digits"), ...) {
   # Inform about the estimated k being printed
   if (!is.null(x$k)) {
     cat("Results for estimated k = ", x$k, ":\n", sep = "")
