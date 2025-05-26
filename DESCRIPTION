@@ -2,7 +2,7 @@ Package: ICtest
 Type: Package
 Title: Estimating and Testing the Number of Interesting Components in Linear Dimension Reduction
 Version: 0.3-6
-Date: 2025-05-24
+Date: 2025-05-26
 Authors@R: 
     c(person(given = "Klaus",
              family = "Nordhausen",
