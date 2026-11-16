@@ -15,7 +15,7 @@ NGPP(X, k, nl = c("skew", "pow3"), alpha = 0.8, method = "symm", eps = 1e-6,
   \item{X}{Numeric matrix with n rows corresponding to the observations and p columns corresponding to the variables.}
   \item{k}{Number of components to estimate, \eqn{1 \leq k \leq p}{1 <= k <= p}.}
   \item{nl}{Vector of non-linearities, a convex combination of the corresponding squared objective functions of which is then used as the projection index. The choices include \code{"skew"} (skewness), \code{"pow3"} (excess kurtosis), \code{"tanh"} (\eqn{log(cosh)}) and \code{"gauss"} (Gaussian function).}
-  \item{alpha}{Vector of positive weights between 0 and 1 given to the non-linearities. The length of \code{alpha} should be either one less than the number of non-linearities in which case the missing weight is chosen so that \code{alpha} sums to one, or equal to the number of non-linearities in which case the weights are used as such. No boundary checks for the weights are done.}
+  \item{alpha}{Vector of positive weights between 0 and 1 given to the non-linearities. The length of \code{alpha} should be either one less than the number of non-linearities in which case the missing weight is chosen so that \code{alpha} sums to one, or equal to the number of non-linearities in which case the weights are used as such. All weights, including a completed last one, must lie between 0 and 1.}
   \item{method}{If \code{"symm"} the \code{k} signals are estimated simultaneously (symmetric projection pursuit) and if \code{"defl"} they are estimated one-by-one (deflation-based projection pursuit).}
   \item{eps}{Convergence tolerance.}
   \item{verbose}{If \code{TRUE} the numbers of iterations will be printed.}

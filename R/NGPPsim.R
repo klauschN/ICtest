@@ -1,16 +1,17 @@
 NGPPsim <-
 function(X, k, nl = c("skew", "pow3"), alpha = 0.8, N = 1000, eps = 1e-6, verbose = FALSE, maxiter = 100){
   
-  X_name <- names(X)
-  
+  X_name <- deparse(substitute(X))
+
+  X <- as.matrix(X)
   n <- nrow(X)
+  checkK(k, ncol(X))
+  checkPosInt(N, "N")
   
   # Parse non-linearities to integers
-  nl_int <- match(nl, c("skew", "pow3", "tanh", "gauss"))
-
-  if(length(alpha) != length(nl_int)){
-    alpha <- c(alpha, 1 - sum(alpha))
-  }
+  NL <- parseNL(nl, alpha)
+  nl_int <- NL$nl_int
+  alpha <- NL$alpha
   
   # nl_int <- c(1, 2)
   # alpha <- 0.8
@@ -114,7 +115,7 @@ function(X, k, nl = c("skew", "pow3"), alpha = 0.8, N = 1000, eps = 1e-6, verbos
   names(res_parameter) <- "Repetitions"
   
   res <- list(statistic = res_statistic,
-              p.value = mean(res_statistic < obj_gauss),
+              p.value = (sum(obj_gauss >= res_statistic) + 1)/(N + 1),
               parameter = res_parameter,
               method = "Testing for sub-Gaussianity using NGPP",
               data.name = X_name,

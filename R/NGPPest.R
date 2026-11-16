@@ -1,16 +1,16 @@
 NGPPest <-
 function(X, nl = c("skew", "pow3"), alpha = 0.8, N = 500, eps = 1e-6, verbose = FALSE, maxiter = 100){
   
-  X_name <- names(X)
-  
+  X_name <- deparse(substitute(X))
+
+  X <- as.matrix(X)
   n <- nrow(X)
+  checkPosInt(N, "N")
   
   # Parse non-linearities to integers
-  nl_int <- match(nl, c("skew", "pow3", "tanh", "gauss"))
-  
-  if(length(alpha) != length(nl_int)){
-    alpha <- c(alpha, 1 - sum(alpha))
-  }
+  NL <- parseNL(nl, alpha)
+  nl_int <- NL$nl_int
+  alpha <- NL$alpha
   
   # Whiten data
   MU <- colMeans(X)
@@ -115,7 +115,7 @@ function(X, nl = c("skew", "pow3"), alpha = 0.8, N = 500, eps = 1e-6, verbose = 
   names(res_parameter) <- "Repetitions"
   
   res <- list(statistic = res_statistic,
-              p.value = colMeans(sweep(obj_gauss, 2, res_statistic, '>')),
+              p.value = (colSums(sweep(obj_gauss, 2, res_statistic, '>=')) + 1)/(N + 1),
               parameter = res_parameter,
               method = "Estimation the signal subspace dimension using NGPP",
               data.name = X_name,

@@ -58,7 +58,7 @@ This function is designed to work with the following tests:
   \item \code{\link[ICtest]{FOBIasymp}}, \code{\link[ICtest]{FOBIboot}}
   \item \code{\link[ICtest]{ICSboot}}
   \item \code{\link[ICtest]{NGPPsim}}
-  \item \code{\link[ICtest]{PCAasymp}}, \code{\link[ICtest]{PCAboot}}, \code{\link[ICtest]{PCAschott}}
+  \item \code{\link[ICtest]{PCAasymp}}, \code{\link[ICtest]{PCAboot}}, \code{\link[ICtest]{PCAschott}}, \code{\link[ICtest]{PCAlrt}}
   \item \code{\link[ICtest]{SIRasymp}}, \code{\link[ICtest]{SIRboot}}
 }
 These tests evaluate the null hypothesis that the true dimension \eqn{d \leq k}, and return
@@ -70,6 +70,12 @@ The search work as follows:
   \item \code{"backward"} performs a linear search starting from the largest possible value of \code{k} and decrementing downward. Returns \code{k}+1, where \code{k} is the largest dimension where the null is rejected.
   \item \code{"binary"} splits the possible range of \code{k}s in half and performs a binary search. This search may skip testing some possible \code{k} values, but it is typically faster than linear search.
   }
+The binary search assumes that the null hypothesis is rejected for all \code{k} below the true dimension and
+not rejected above it. If the p-values do not behave monotonically in \code{k}, the binary search can return a
+different value than the linear searches, which should then be preferred.
+
+If no tested value of \code{k} gives a p-value above \code{alpha}, a warning is given and the returned object
+of class \code{kSearch} contains only \code{k = NA} and the tested values of \code{k} with their p-values.
 }
 \examples{
 # Applying forward search with PCAasymp while evaluating 

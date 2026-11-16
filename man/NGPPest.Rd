@@ -14,7 +14,7 @@ NGPPest(X, nl = c("skew", "pow3"), alpha = 0.8, N = 500, eps = 1e-6,
 \arguments{
   \item{X}{Numeric matrix with n rows corresponding to the observations and p columns corresponding to the variables.}
   \item{nl}{Vector of non-linearities, a convex combination of the corresponding squared objective functions of which is then used as the projection index. The choices include \code{"skew"} (skewness), \code{"pow3"} (excess kurtosis), \code{"tanh"} (\eqn{log(cosh)}) and \code{"gauss"} (Gaussian function).}
-  \item{alpha}{Vector of positive weights between 0 and 1 given to the non-linearities. The length of \code{alpha} should be either one less than the number of non-linearities in which case the missing weight is chosen so that \code{alpha} sums to one, or equal to the number of non-linearities in which case the weights are used as such. No boundary checks for the weights are done.}
+  \item{alpha}{Vector of positive weights between 0 and 1 given to the non-linearities. The length of \code{alpha} should be either one less than the number of non-linearities in which case the missing weight is chosen so that \code{alpha} sums to one, or equal to the number of non-linearities in which case the weights are used as such. All weights, including a completed last one, must lie between 0 and 1.}
   \item{N}{Number of normal samples to be used in simulating the distribution of the test statistic under the null hypothesis.}
   \item{eps}{Convergence tolerance.}
   \item{verbose}{If \code{TRUE} the numbers of iterations will be printed.}
@@ -30,7 +30,7 @@ Note that if \code{maxiter} is reached at any step of the algorithm it will use 
 \value{
 A list with class 'icest' containing the following components:
 \item{statistic}{Test statistic, i.e. the objective function values of all estimated component.}
-\item{p.value}{Obtained vector of \eqn{p}-values.}
+\item{p.value}{Obtained vector of \eqn{p}-values, each computed as \eqn{(\#\{T^*_j \geq T\} + 1)/(N + 1)}{(#(T*_j >= T) + 1)/(N + 1)}.}
 \item{parameter}{Number \code{N} of simulated normal samples.}
 \item{method}{Character string \code{"Estimation the signal subspace dimension using NGPP"}.}
 \item{data.name}{Character string giving the name of the data.}

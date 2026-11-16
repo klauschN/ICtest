@@ -1,6 +1,7 @@
 ggplot.ladle <- function (data, mapping=aes(), mapvar=NULL, which="all", ..., environment=parent.frame())
 {
  x <- data
+ if (is.null(x$S)) stop("the ladle object contains no components, plot the criterion with ggladleplot() instead")
  which <- match.arg(which, c("all", "k"))
  if (which=="all") {S <- x$S} else {S <- x$S[ ,0:x$k, drop=FALSE]}
  

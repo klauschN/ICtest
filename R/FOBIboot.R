@@ -36,7 +36,7 @@ ICA_boot_teststatistic <- function(X, k)
     }
 
 # Internal
-# Function to create the bootstrap sample and compute the test statistic using Statregy 1
+# Function to create the bootstrap sample and compute the test statistic using Strategy 1
 
 ICA_boot_normal_S1 <- function(Z1, Winv, MEAN, k)
     {
@@ -54,8 +54,8 @@ ICA_boot_normal_S1 <- function(Z1, Winv, MEAN, k)
     TEST.STATISTIC.Xstar
     }
 
-# interal
-# Function to create the bootstrap sample and compute the test statistic using Statregy 2
+# internal
+# Function to create the bootstrap sample and compute the test statistic using Strategy 2
 
 ICA_boot_normal_S2 <- function(Z1, Winv, MEAN, k)
     {
@@ -111,8 +111,8 @@ ICA_subnormal_boot_S1 <- function(X,k, n.boot = 200)
 
     TEST.STATISTICS.Xstar <- t(replicate(n.boot, ICA_boot_normal_S1(Z1,  Winv, MEAN, k)))
     
-    names(Z) <- paste0("IC.",1:p)
-    PVAL <- (sum(TEST.STATISTIC.X<TEST.STATISTICS.Xstar)+1)/(n.boot+1)
+    colnames(Z) <- paste0("IC.",1:p)
+    PVAL <- (sum(TEST.STATISTIC.X <= TEST.STATISTICS.Xstar)+1)/(n.boot+1)
     ALTERNATIVE <- paste0("the last ",p-k, " components are not gaussian")
     RES <- list(statistic = n*TEST.STATISTIC.X, p.value=PVAL, parameter=PARAMETER, alternative = ALTERNATIVE, k=k, W=W, S=Z, D=D, MU=MEAN)
     RES
@@ -159,7 +159,7 @@ ICA_subnormal_boot_S2 <- function(X,k, n.boot = 200)
 
     TEST.STATISTICS.Xstar <- t(replicate(n.boot, ICA_boot_normal_S2(Z1,  Winv, MEAN, k)))
 
-    PVAL <- (sum(TEST.STATISTIC.X<TEST.STATISTICS.Xstar)+1)/(n.boot+1)
+    PVAL <- (sum(TEST.STATISTIC.X <= TEST.STATISTICS.Xstar)+1)/(n.boot+1)
     ALTERNATIVE <- paste0("the last ",p-k, " components are not gaussian")
     RES <- list(statistic = n*TEST.STATISTIC.X, p.value=PVAL, parameter=PARAMETER, alternative = ALTERNATIVE, k=k, W=W, S=Z, D=D, MU=MEAN)
     RES
@@ -171,6 +171,8 @@ FOBIboot <- function(X, k, n.boot = 200, s.boot = "B1")
 
     DNAME <- deparse(substitute(X))
     X <- as.matrix(X)
+    checkK(k, ncol(X))
+    checkPosInt(n.boot, "n.boot")
 
     s.boot <- match.arg(s.boot, c("B1", "B2"))
     if (s.boot == "B1") {

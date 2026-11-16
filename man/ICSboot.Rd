@@ -15,7 +15,7 @@ ICSboot(X, k, S1=cov, S2=cov4, S1args=NULL, S2args=NULL, n.boot = 200, s.boot = 
 %- maybe also 'usage' for other objects documented here.
 \arguments{
    \item{X}{a numeric data matrix with p>1 columns.}
-  \item{k}{the number of non-gaussian components under the null.}
+  \item{k}{the number of non-gaussian components under the null. Can be between 0 and p-2.}
   \item{S1}{name of the first scatter matrix function. Can only return a matrix. Default is \code{\link{cov}}}.
   \item{S2}{name of the second scatter matrix function. Can only return a matrix. Default is \code{\link[ICS]{cov4}}}
   \item{S1args}{list with optional additional arguments for \code{S1}.}

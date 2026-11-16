@@ -17,7 +17,7 @@ covSIR(X, y, h = 10, ...)
 a numeric data matrix.
 }
   \item{y}{
-a numeric response vector.
+a numeric response vector or a factor.
 }
   \item{h}{
 the number of slices.
@@ -29,12 +29,13 @@ arguments passed on to \code{\link{quantile}}.
 \details{
 This supervised scatter matrix is usually used as the second scatter matrix in SICS to obtain a SIR type supervised linear dimension reduction.
 For that purpose \code{covSIR} first divides the response \code{y} into \code{h} slices using the corresponding quantiles as cut points.
+If \code{y} is a factor or has at most \code{h} distinct values, each distinct value forms its own slice. Repeated quantiles, which occur when \code{y} has ties, are merged, so that fewer than \code{h} slices can be used.
 Then for each slice the mean vector of \code{X} is computed and the resulting supervised scatter matrix consist of the covariance matrix of these mean vectors.
 
 The function might have problems if the sample size is too small.
 }
 \value{
-a supervised scatter matrix
+a supervised scatter matrix with the attribute \code{nslices} giving the number of slices used.
 }
 \references{
 \cite{Liski, E., Nordhausen, K. and Oja, H. (2014), Supervised invariant coordinate selection, \emph{Statistics: A Journal of Theoretical and Applied Statistics}, \bold{48},  711--731. <doi:10.1080/02331888.2013.800067>.}

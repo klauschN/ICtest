@@ -4,6 +4,7 @@ PCAasymp <- function(X, k, scatter="cov", ...)
     n <- nrow(X)
     p <- ncol(X)
     X <- as.matrix(X)
+    checkK(k, ncol(X), ncol(X) - 2)
 
     scatter <-  match.arg(scatter, c("cov", "tyler"))
 
@@ -13,14 +14,14 @@ PCAasymp <- function(X, k, scatter="cov", ...)
             COV <- crossprod(Xc)/n
             MAHA <- rowSums(Xc %*% solve(COV) * Xc)
             sigma1 <- (mean(MAHA^2))/(p*(p+2))
-            METHOD <- "PCA subspericity test using cov"
+            METHOD <- "PCA subsphericity test using cov"
             } else {
             TYLER <- HR.Mest(X, ...)
             MEAN <- TYLER$center
             COV <-  TYLER$scatter
             Xc <-  sweep(X,2,MEAN,"-")
             sigma1 <- (p+2)/p
-            METHOD <- "PCA subspericity test using Tyler's shape matrix"
+            METHOD <- "PCA subsphericity test using Tyler's shape matrix"
             }
 
     EV <- eigen(COV, symmetric = TRUE)
@@ -32,7 +33,7 @@ PCAasymp <- function(X, k, scatter="cov", ...)
     names(TESTSTATISTIC) = "T"
     PARAMETER <- (p-k-1)*(p-k+2)/2
     names(PARAMETER) <- c("df")
-    PVAL <- 1- pchisq(TESTSTATISTIC, df=PARAMETER)
+    PVAL <- pchisq(TESTSTATISTIC, df=PARAMETER, lower.tail = FALSE)
     ALTERNATIVE <- paste0("the last ",p-k, " eigenvalues are not equal")
 
     W <- EV$vectors

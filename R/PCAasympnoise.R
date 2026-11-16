@@ -32,7 +32,7 @@ PCAasympnoise <-
     names(TESTSTATISTIC) = "T"
     PARAMETER <- (p - k - 1) * (p - k + 2)/2
     names(PARAMETER) <- c("df")
-    PVAL <- 1 - pchisq(TESTSTATISTIC, df = PARAMETER)
+    PVAL <- pchisq(TESTSTATISTIC, df = PARAMETER, lower.tail = FALSE)
     ALTERNATIVE <- paste0("the last ", p - k, " eigenvalues are not equal")
     W <- EV$vectors
     S <- Xc %*% W

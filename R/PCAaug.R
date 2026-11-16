@@ -38,6 +38,9 @@ PCAaug <- function (X, noise = "median", naug = 1, nrep = 1, sigma2=NULL, alpha=
   data.name <- deparse(substitute(X))
   noise <- match.arg(noise, c("median", "last", "quantile", "known"))
   method <- "PCA"
+  X <- as.matrix(X)
+  checkPosInt(naug, "naug")
+  checkPosInt(nrep, "nrep")
   p <- ncol(X)
   n <- nrow(X)
   MEAN <- colMeans(X)

@@ -113,8 +113,8 @@ ICS_subnormal_boot_S1 <- function (X, k, S1=cov, S2=cov4, S1args=NULL, S2args=NU
   Winv <- solve(W)
   TEST.STATISTICS.Xstar <- t(replicate(n.boot, ICS_boot_normal_S1(Z1, Z2,
                                                                   Winv, MEAN, k, S1=S1, S2=S2, S1args=S1args, S2args=S2args)))
-  names(Z) <- paste0("IC.", 1:p)
-  PVAL <- (sum(TEST.STATISTIC.X < TEST.STATISTICS.Xstar) + 
+  colnames(Z) <- paste0("IC.", 1:p)
+  PVAL <- (sum(TEST.STATISTIC.X <= TEST.STATISTICS.Xstar) + 
              1)/(n.boot + 1)
   ALTERNATIVE <- paste0("the last ", p - k, " components are not gaussian")
   RES <- list(statistic = n * TEST.STATISTIC.X, p.value = PVAL, 
@@ -153,7 +153,7 @@ ICS_subnormal_boot_S2 <- function (X, k, S1=cov, S2=cov4, S1args=NULL, S2args=NU
   Winv <- solve(W)
   TEST.STATISTICS.Xstar <- t(replicate(n.boot, ICS_boot_normal_S2(Z1,Z2, 
                                                                   Winv, MEAN, k, S1=S1, S2=S2, S1args=S1args, S2args=S2args)))
-  PVAL <- (sum(TEST.STATISTIC.X < TEST.STATISTICS.Xstar) + 
+  PVAL <- (sum(TEST.STATISTIC.X <= TEST.STATISTICS.Xstar) + 
              1)/(n.boot + 1)
   ALTERNATIVE <- paste0("the last ", p - k, " components are not gaussian")
   RES <- list(statistic = n * TEST.STATISTIC.X, p.value = PVAL, 
@@ -170,6 +170,8 @@ ICSboot <- function (X, k, S1=cov, S2=cov4, S1args=NULL, S2args=NULL, n.boot = 2
     S1NAME <- deparse(substitute(S1))
     S2NAME <- deparse(substitute(S2))
     X <- as.matrix(X)
+    checkK(k, ncol(X), ncol(X) - 2)
+    checkPosInt(n.boot, "n.boot")
     s.boot <- match.arg(s.boot, c("B1", "B2"))
     if (s.boot == "B1") {
       RES <- ICS_subnormal_boot_S1(X = X, k = k, S1=S1, S2=S2, S1args=S1args, S2args=S2args, n.boot=n.boot)

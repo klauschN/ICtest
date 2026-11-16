@@ -2,7 +2,8 @@
 ggladleplot <- function(x, crit = "gn", type="l", ylab = crit, xlab = "component", main = deparse(substitute(x)), ...)
 {
   crit <- match.arg(crit, c("gn", "fn", "phin", "lambda"))
-  index <- 0:(length(x[[crit]])-1)
+  start <- if (is.null(x$index.start)) 0 else x$index.start
+  index <- start + 0:(length(x[[crit]])-1)
   plot_data <- data.frame(crit = x[[crit]], index = index)
   ggplot(plot_data, aes(x = index, y = crit)) +
     geom_line() +
