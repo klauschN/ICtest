@@ -1,14 +1,19 @@
-\name{components.ladle}
+\name{components}
+\alias{components}
 \alias{components.ictest}
 \alias{components.ladle}
 
 \title{
-Generic Components Extraction Function
+Extract Components from 'ictest' and 'ladle' Objects
 }
 \description{
-Function to extract components from an object. If the object is of class ictest or ladle the user can choose if all components
-are extracted or only those which were interesting under the null hypothesis.
+Methods for the \code{components} generic from the \pkg{ICS} package
+to extract components from objects of class \code{ictest} and \code{ladle}.
+The user can choose whether all components are extracted or only those
+relevant under the null hypothesis.
 }
+
+
 \usage{
 \method{components}{ictest}(x, which = "all", ...)
 \method{components}{ladle}(x, which = "all", ...)

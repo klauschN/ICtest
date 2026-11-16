@@ -1,12 +1,16 @@
 LOG of the CHANGES in the package ICtest
 
+Version 0.3-7:
+
+* Updating makevars files
+* Removing components as a generic function as it is now a generic function in ICS which is imported
+
 Version 0.3-6:
 
 * Fixing some missing links in help files when linking to functions in external packages
-* Fixing a mistake in rorth
+* Fixing a bug in rorth
 * Adding K. Perkonoja as package author
-* The function components is now declated in ICS and here only the method remains
-* New function kSearch
+* New function kSearch including print and summary methods
 
 
 Version 0.3-5:
