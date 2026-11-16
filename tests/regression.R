@@ -13,7 +13,11 @@ res <- PCAlrt(X, 0)
 stopifnot(is.finite(res$statistic))
 Xc <- sweep(X, 2, colMeans(X))
 stopifnot(isTRUE(all.equal(unname(res$S), unname(Xc %*% res$W))))
-stopifnot(isTRUE(all.equal(unname(PCAlrt(X, 2)$S), unname(PCAasymp(X, 2)$S))))
+# the components agree with those of PCAasymp up to the signs of the columns,
+# which depend on the LAPACK implementation
+S1 <- unname(PCAlrt(X, 2)$S)
+S2 <- unname(PCAasymp(X, 2)$S)
+stopifnot(isTRUE(all.equal(S1, sweep(S2, 2, sign(colSums(S1 * S2)), "*"))))
 expectError(PCAlrt(X, p - 1))
 expectError(PCAlrt(matrix(rnorm(40 * 50), 40), 2))
 
