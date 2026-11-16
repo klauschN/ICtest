@@ -62,7 +62,7 @@ A list of class ladle containing:
 Klaus Nordhausen
 }
 \seealso{
-\code{\link{ladleplot}}, \code{\link{PCAladle}}
+\code{\link{ladleplot}}, \code{\link{PCAladle}}, \code{\link{PCAaugHD}}
 }
 \examples{
 n <- 1000

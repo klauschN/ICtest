@@ -22,7 +22,7 @@ MFobi <- function(X)
 
 
 
-# function to compute the qunatities for one bootstrap sample
+# function to compute the quantities for one bootstrap sample
 # input
 # X - bootstrapsample
 # EVdata - eigenvectors for the M matrix for the observed data
@@ -43,6 +43,9 @@ FOBIladleboot <- function(X, EVdata, r)
 FOBIladle <- function(X, n.boot=200, ncomp=ifelse(ncol(X) > 10, floor(ncol(X)/log(ncol(X))), ncol(X)-1))
   {
   data.name <-  deparse(substitute(X))
+  X <- as.matrix(X)
+  if (!is.numeric(ncomp) || length(ncomp) != 1 || ncomp != round(ncomp) || ncomp < 1 || ncomp > ncol(X) - 1)
+    stop("'ncomp' must be an integer between 1 and ", ncol(X) - 1)
   method <- "FOBI"                        
   
   p <- ncol(X)

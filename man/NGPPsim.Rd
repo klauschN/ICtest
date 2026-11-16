@@ -13,9 +13,9 @@ NGPPsim(X, k, nl = c("skew", "pow3"), alpha = 0.8, N = 1000, eps = 1e-6,
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{X}{Numeric matrix with n rows corresponding to the observations and p columns corresponding to the variables.}
-  \item{k}{Number of components to estimate, \eqn{1 \leq k \leq p}{1 <= k <= p - 1}.}
+  \item{k}{The dimension of the non-Gaussian subspace under the null hypothesis, \eqn{0 \leq k \leq p - 1}{0 <= k <= p - 1}.}
   \item{nl}{Vector of non-linearities, a convex combination of the corresponding squared objective functions of which is then used as the projection index. The choices include \code{"skew"} (skewness), \code{"pow3"} (excess kurtosis), \code{"tanh"} (\eqn{log(cosh)}) and \code{"gauss"} (Gaussian function).}
-  \item{alpha}{Vector of positive weights between 0 and 1 given to the non-linearities. The length of \code{alpha} should be either one less than the number of non-linearities in which case the missing weight is chosen so that \code{alpha} sums to one, or equal to the number of non-linearities in which case the weights are used as such. No boundary checks for the weights are done.}
+  \item{alpha}{Vector of positive weights between 0 and 1 given to the non-linearities. The length of \code{alpha} should be either one less than the number of non-linearities in which case the missing weight is chosen so that \code{alpha} sums to one, or equal to the number of non-linearities in which case the weights are used as such. All weights, including a completed last one, must lie between 0 and 1.}
   \item{N}{Number of normal samples to be used in simulating the distribution of the test statistic under the null hypothesis.}
   \item{eps}{Convergence tolerance.}
   \item{verbose}{If \code{TRUE} the numbers of iterations will be printed.}
@@ -24,14 +24,14 @@ NGPPsim(X, k, nl = c("skew", "pow3"), alpha = 0.8, N = 1000, eps = 1e-6,
 \details{
 It is assumed that the data is a random sample from the model \eqn{x = m + A s} where the latent vector \eqn{s = (s_1^T, s_2^T)^T}{s = (s_1', s_2')'} consists of \eqn{k}-dimensional non-Gaussian subvector (the signal) and \eqn{p - k}-dimensional Gaussian subvector (the noise) and the components of \eqn{s} are mutually independent. Without loss of generality we further assume that the components of \eqn{s} have zero means and unit variances.
 
-To test the null hypothesis \eqn{H_0: k_{true} \leq k}{H0: k_true <= k} the algorithm first estimates \eqn{k + 1} components using delfation-based NGPP with the chosen non-linearities and weighting. Under the null hypothesis the distribution of the final \eqn{p - k} components is standard multivariate normal and the significance of the test is obtained by comparing the objective function value of the \eqn{(k + 1)}th estimated components to the same quantity estimated from \code{N} samples of size \eqn{n} from \eqn{(p - k)}-dimensional standard multivariate normal distribution.
+To test the null hypothesis \eqn{H_0: k_{true} \leq k}{H0: k_true <= k} the algorithm first estimates \eqn{k + 1} components using deflation-based NGPP with the chosen non-linearities and weighting. Under the null hypothesis the distribution of the final \eqn{p - k} components is standard multivariate normal and the significance of the test is obtained by comparing the objective function value of the \eqn{(k + 1)}th estimated components to the same quantity estimated from \code{N} samples of size \eqn{n} from \eqn{(p - k)}-dimensional standard multivariate normal distribution.
 
 Note that if \code{maxiter} is reached at any step of the algorithm it will use the current estimated direction and continue to the next step. 
 }
 \value{
-A list with class 'ictest', inheriting from the class 'hctest', containing the following components:
+A list with class 'ictest', inheriting from the class 'htest', containing the following components:
 \item{statistic}{Test statistic, i.e. the objective function value of the (\code{k} + 1)th estimated component.}
-\item{p.value}{Obtained \eqn{p}-value.}
+\item{p.value}{Obtained \eqn{p}-value, computed as \eqn{(\#\{T^*_j \geq T\} + 1)/(N + 1)}{(#(T*_j >= T) + 1)/(N + 1)}, where \eqn{T^*_1, \ldots, T^*_N}{T*_1, ..., T*_N} are the simulated test statistics.}
 \item{parameter}{Number \code{N} of simulated normal samples.}
 \item{method}{Character string denoting which test was performed.}
 \item{data.name}{Character string giving the name of the data.}

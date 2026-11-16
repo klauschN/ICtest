@@ -132,8 +132,9 @@ PCA_subsphere_boot_s2 <- function(X, S1,k, n.boot, Sargs)
     PARAMETER <- n.boot
     names(PARAMETER) <- c("replications")
     LAMBDA <- sqrt(c(D[seq_len(k)], rep(meanEVpk,p-k)))
-    #LAMBDA.inv <- 1/LAMBDA
-    LAMBDA.inv <- 1/D
+    # whitening of the principal components, the rotated bootstrap
+    # observations are then spherical with the radius of the data
+    LAMBDA.inv <- 1/sqrt(D)
     Z <- Xc %*% W
     S <- Z
     colnames(S) <- paste0("PC.",1:p)
@@ -152,6 +153,8 @@ PCAboot <- function(X, k, n.boot = 200, s.boot = "B1" , S = MeanCov, Sargs=NULL)
     SNAME <- deparse(substitute(S))
     
     X <- as.matrix(X)
+    checkK(k, ncol(X), ncol(X) - 2)
+    checkPosInt(n.boot, "n.boot")
 
     s.boot <- match.arg(s.boot, c("B1", "B2"))
     if (s.boot == "B1") {

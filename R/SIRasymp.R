@@ -2,6 +2,7 @@ SIRasymp <- function(X, y, k, h=10, ...)
     {
     DNAME <- deparse(substitute(X))
     X <- as.matrix(X)
+    checkK(k, ncol(X))
     n <- nrow(X)
     p <- ncol(X)
     MEAN <- colMeans(X)
@@ -22,9 +23,12 @@ SIRasymp <- function(X, y, k, h=10, ...)
     TESTSTATISTIC <-  n*sum(D[(k+1):p])
     names(TESTSTATISTIC) = "T"
 
-    PARAMETER <- (p-k)*(h-k-1)
+    # number of slices actually used (smaller than h for a discrete y)
+    H <- attr(S2, "nslices")
+    if (k >= H - 1) stop("'k' must be smaller than the number of slices minus 1 (", H - 1, ")")
+    PARAMETER <- (p-k)*(H-k-1)
     names(PARAMETER) <- "df"
-    PVAL <- 1- pchisq(TESTSTATISTIC, df=PARAMETER)
+    PVAL <- pchisq(TESTSTATISTIC, df=PARAMETER, lower.tail = FALSE)
     METHOD <- "SIR test for subspace dimension"
     ALTERNATIVE <- paste0("the last ",p-k, " eigenvalues are not zero")
       

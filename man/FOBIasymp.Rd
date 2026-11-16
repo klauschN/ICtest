@@ -15,7 +15,7 @@ FOBIasymp(X, k, type = "S3", model = "NGCA", method = "satterthwaite")
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{X}{numeric data matrix.}
-  \item{k}{the number of non-gaussian components under the null.}
+  \item{k}{the number of non-gaussian components under the null. Can be between 0 and p-1.}
   \item{type}{which of the three tests to perform. Options are \code{"S1"}, \code{"S2"} and \code{"S3"}. For the differences see the details section.}
   \item{model}{What is the underlying assumption of the non-gaussian parts. Options are general \code{"NGCA"} model and \code{"ICA"} model.}
   \item{method}{if \code{type = "S1"} the teststatistic has as limiting distribution a weighted sum of chisquare distributions. To compute the p-value then the 

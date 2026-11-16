@@ -23,7 +23,7 @@ SIRasymp(X, y, k, h = 10, ...)
 \details{
 Under the null the first \code{k} eigenvalues contained in \code{D} are non-zero and the remaining \code{p-k} are zero.
 
-For a sample of size \eqn{n}, the test statistic \eqn{T} is then n times the sum of these last p-k eigenvalue and has under the null a chisquare distribution with \eqn{(p-k)(h-k-1)} degrees of freedom,
+For a sample of size \eqn{n}, the test statistic \eqn{T} is then n times the sum of these last p-k eigenvalue and has under the null a chisquare distribution with \eqn{(p-k)(h-k-1)} degrees of freedom, where h is the number of slices actually used (see \code{\link{covSIR}}),
 therefore it is required that \eqn{k < h-1}.
 }
 \value{

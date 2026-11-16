@@ -50,6 +50,9 @@ SIR_boot_normal_all <- function(Z1,Z2,y, Winv, MEAN, k, h, ...)
 SIRboot <- function(X, y, k, h=10, n.boot = 200, ...)
     {
     DNAME <- deparse(substitute(X))
+    X <- as.matrix(X)
+    checkK(k, ncol(X))
+    checkPosInt(n.boot, "n.boot")
     n <- nrow(X)
     p <- ncol(X)
     MEAN <- colMeans(X)
@@ -76,7 +79,7 @@ SIRboot <- function(X, y, k, h=10, n.boot = 200, ...)
     Winv <- solve(W)
 
     TEST.STATISTICS.Xstar <- replicate(n.boot, SIR_boot_normal_all(Z1, Z2, y,  Winv, MEAN, k, h, ...))
-    PVAL <- (sum(TEST.STATISTIC.X<TEST.STATISTICS.Xstar)+1)/(n.boot+1)
+    PVAL <- (sum(TEST.STATISTIC.X <= TEST.STATISTICS.Xstar)+1)/(n.boot+1)
     METHOD <- "SIR bootstrapping test for subspace dimension"
     ALTERNATIVE <- paste0("the last ",p-k, " eigenvalues are not zero")
     PARAMETER <- n.boot

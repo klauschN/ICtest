@@ -51,15 +51,20 @@ The first strategy has the following steps:
 \item \code{s.boot="B2"}: 
 The second strategy has the following steps:
 \enumerate{
-\item Scale each principal component using the matrix \eqn{D}, i.e. \eqn{Z = S D}. 
+\item Standardize the principal components, i.e. \eqn{Z = S D^{-1/2}}{Z = S D^(-1/2)} with \eqn{D = diag(d_1,...,d_p)}{D = diag(d_1,...,d_p)}.
 \item Take a bootstrap sample \eqn{Z^*} of size \eqn{n} from \eqn{Z}.
 \item Every observation in \eqn{Z^*} is transformed with a different random orthogonal matrix.
-\item Recreate \eqn{X^*= Z^* {D^*}^{-1} W}.
-\item Compute the test statistic based on \eqn{X^*}. 
+\item Recreate \eqn{X^*= Z^* {D^*}^{1/2} W'}{X* = Z* D*^(1/2) W'}.
+\item Compute the test statistic based on \eqn{X^*}.
 \item Repeat the previous steps \code{n.boot} times.
 }
 To create the random orthogonal matrices the function \code{\link{rorth}} is used.
 }
+
+Strategy B1 rotates only the last \eqn{p-k} principal components and requires only that they are spherically distributed.
+Strategy B2 rotates the complete standardized observations, so the bootstrap samples follow an elliptical distribution. It is therefore only valid for elliptical data. For data with heavy tails, larger sample sizes are needed for B2 than for B1.
+
+Before version 0.3-8, strategy B2 scaled the principal components with \eqn{D^{-1}}{D^(-1)} instead of \eqn{D^{-1/2}}{D^(-1/2)}, which made the test conservative for normal data.
 }
 
 

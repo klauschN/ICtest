@@ -2,12 +2,15 @@ NGPP <-
 function(X, k, nl = c("skew", "pow3"), alpha = 0.8, method="symm", eps = 1e-6, verbose = FALSE, maxiter = 100){
   
   # Parse non-linearities to integers
-  nl_int <- match(nl, c("skew", "pow3", "tanh", "gauss"))
+  NL <- parseNL(nl, alpha)
+  nl_int <- NL$nl_int
+  alpha <- NL$alpha
   
-  if(length(alpha) != length(nl_int)){
-    alpha <- c(alpha, 1 - sum(alpha))
-  }
-  
+  method <- match.arg(method, c("symm", "defl"))
+  X <- as.matrix(X)
+  checkK(k, ncol(X), ncol(X))
+  if (k < 1) stop("'k' must be at least 1")
+
   # Whiten data
   MU <- colMeans(X)
   p <- ncol(X)

@@ -1,12 +1,63 @@
 LOG of the CHANGES in the package ICtest
 
+Version 0.3-8:
+
+* New functions FOBIaug and SIRaug for the augmentation estimators of FOBI and SIR
+
+* New function PCAaugHD for the high-dimensional augmentation estimator of Radojicic and Virta (2025)
+
+* ladleplot and ggladleplot respect the new optional element index.start of ladle objects
+
+* PCAschott now implements the high-dimensional test of Schott (2006), which it was documented to be, and can be used also for p > n. The likelihood
+  ratio test it computed before is available as the new function PCAlrt. Results of PCAschott therefore differ from earlier versions.
+
+* Bug fixes:
+  - PCAlrt (formerly PCAschott): Lawley's correction factor fixed (this also fixes the infinite statistic for k = 0) and the returned components S are now Xc W
+  - NGPP, NGPPsim, NGPPest: the "tanh" and "gauss" objectives and their gradients now subtract the expectations under normality
+  - NGPP, NGPPsim, NGPPest: invalid non-linearities, an unknown method or a wrong length of alpha now give an error
+  - NGPPsim, NGPPest: data.name is now the name of the data
+  - kSearch: backward search returns the smallest k when no test rejects, and the test is recognized also when called as ICtest::PCAasymp etc.
+  - FOBIboot, ICSboot: strategy B1 returns S with column names
+  - PCAboot: strategy B2 standardized the principal components with 1/D instead of 1/sqrt(D), so the bootstrap samples did not have the
+    radial distribution of the data and the test did not keep its level (conservative for normal data). The help page now also states that B2 assumes elliptical data
+  - all tests check k; PCAasymp, PCAschott, PCAboot and ICSboot allow 0 <= k <= p-2, the others 0 <= k <= p-1
+  - PCAladle, FOBIladle, SIRladle, PCAaug, SIRboot accept data frames; the ladle functions check ncomp
+  - covSIR handles a discrete response or a factor and ties; SIRasymp uses the number of slices actually used for the degrees of freedom
+  - p-values computed with lower.tail = FALSE for better precision
+
+* Added regression tests in tests/regression.R
+
+* Typos in the method names of PCAasymp and FOBIasymp fixed ("subsphericity", "subgaussianity"), kSearch prints a final newline only after
+  a progress bar, and the PCA vignette describes the corrected strategy B2 of PCAboot
+
+* Help page of rorth rewritten: it now describes the sign correction of the QR decomposition, cites Mezzadri (2007) and
+  has an example comparing rorth with the uncorrected QR decomposition
+
+* Changes after a code review:
+  - FOBIboot, ICSboot, SIRboot: p-values now use #(T* >= T), as PCAboot and the documentation, instead of #(T* > T)
+  - NGPPsim, NGPPest: p-values are now (#(T* >= T) + 1)/(N + 1) and can no longer be zero, results therefore differ
+    slightly from earlier versions
+  - NGPP checks that 1 <= k <= p, NGPPsim that 0 <= k <= p - 1, and the weights alpha must lie in [0, 1]
+  - naug, nrep, n.boot and N must be positive integers in all augmentation, bootstrap and NGPP functions
+  - plot, ggplot and components give an informative error for ladle objects without components (as returned by ladle)
+  - kSearch: invalid or empty ranges of min_dim and max_dim give an error, an unsuccessful search returns k = NA,
+    and the help page states the monotonicity assumption of the binary search
+  - NGPP, NGPPsim, NGPPest: numerically stable computation of log(cosh(x)) for the "tanh" objective
+  - help page fixes in NGPPsim (range of k, class htest, typo)
+
+* DESCRIPTION gives the GitHub repository as URL and BugReports, and the README has been extended
+
+Version 0.3-7:
+
+* Updating makevars files
+* Removing components as a generic function as it is now a generic function in ICS which is imported
+
 Version 0.3-6:
 
 * Fixing some missing links in help files when linking to functions in external packages
-* Fixing a mistake in rorth
+* Fixing a bug in rorth
 * Adding K. Perkonoja as package author
-* The function components is now declated in ICS and here only the method remains
-* New function kSearch
+* New function kSearch including print and summary methods
 
 
 Version 0.3-5:

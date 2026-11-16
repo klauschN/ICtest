@@ -1,3 +1,4 @@
+#no moved to ICS
 #components <- function(x, ...) UseMethod("components")
 
 components.ictest <- function (x, which="all", ...)

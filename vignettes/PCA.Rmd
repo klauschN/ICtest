@@ -102,10 +102,12 @@ The first strategy has the following steps:
 
 2. `s.boot="B2"`: 
 The second strategy has the following steps:
-  a. Scale each principal component using the $p\times p$ diagonal matrix $D^*=diag(d_1,...,d_k,\bar{d},...,\bar{d})$, i.e. $Z = S D^*$. 
+  a. Standardize the principal components using the $p\times p$ diagonal matrix $D=diag(d_1,...,d_p)$, i.e. $Z = S D^{-1/2}$.
   b. Take a bootstrap sample $Z^*$ of size $n$ from $Z$.
   c. Every observation in $Z^*$ is transformed with a different random orthogonal matrix.
-  d. Recreate $X^*= Z^* {D^*}^{-1} W^{-1}$.
+  d. Recreate $X^*= Z^* {D^*}^{1/2} W^{-1}$, where $D^*=diag(d_1,...,d_k,\bar{d},...,\bar{d})$.
+
+Strategy B1 requires only that the last $p-k$ principal components are spherical, while strategy B2 rotates the complete standardized observations and therefore assumes that the data are elliptical.
   e. Compute the test statistic $T^*$ based on $X^*$.
   f. Repeat the previous steps $m$ times to obtain the test statistics $T^*_1,...,T^*_m$.
 

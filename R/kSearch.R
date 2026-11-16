@@ -21,7 +21,7 @@
 #'   \item \code{\link[ICtest]{FOBIasymp}}, \code{\link[ICtest]{FOBIboot}}
 #'   \item \code{\link[ICtest]{ICSboot}}
 #'   \item \code{\link[ICtest]{NGPPsim}}
-#'   \item \code{\link[ICtest]{PCAasymp}}, \code{\link[ICtest]{PCAboot}}, \code{\link[ICtest]{PCAschott}}
+#'   \item \code{\link[ICtest]{PCAasymp}}, \code{\link[ICtest]{PCAboot}}, \code{\link[ICtest]{PCAschott}}, \code{\link[ICtest]{PCAlrt}}
 #'   \item \code{\link[ICtest]{SIRasymp}}, \code{\link[ICtest]{SIRboot}}
 #' }
 #' These tests evaluate the null hypothesis that the true dimension \eqn{d \leq k}, and return
@@ -38,6 +38,12 @@
 #'   \item \code{"backward"} performs a linear search starting from the largest possible value of \code{k} and decrementing downward. Returns \code{k}+1, where \code{k} is the largest dimension where the null is rejected.
 #'   \item \code{"binary"} splits the possible range of \code{k}s in half and performs a binary search. This search may skip testing some possible \code{k} values, but it is typically faster than linear search.
 #'   }
+#' The binary search assumes that the null hypothesis is rejected for all \code{k} below the true dimension and
+#' not rejected above it. If the p-values do not behave monotonically in \code{k}, the binary search can return a
+#' different value than the linear searches, which should then be preferred.
+#'
+#' If no tested value of \code{k} gives a p-value above \code{alpha}, a warning is given and the returned object
+#' of class \code{kSearch} contains only \code{k = NA} and the tested values of \code{k} with their p-values.
 #' 
 #' @param alpha A numeric significance level (default = 0.05) used as the threshold for rejecting the null hypothesis.
 #' @param early_stop Logical or \code{NULL}. Controls whether the search stops early once the null hypothesis is not rejected. 
@@ -89,7 +95,14 @@ kSearch <- function(X,
   p <- ncol(X)
   
   # Define the ranges for k based on the method
-  k_range <- switch(deparse(substitute(method)),
+  # identify the test by the function itself, so that also
+  # ICtest::PCAasymp or a function stored under another name work
+  tests <- list(FOBIasymp = FOBIasymp, FOBIboot = FOBIboot, ICSboot = ICSboot,
+                NGPPsim = NGPPsim, PCAasymp = PCAasymp, PCAboot = PCAboot,
+                PCAschott = PCAschott, PCAlrt = PCAlrt, SIRasymp = SIRasymp, SIRboot = SIRboot)
+  method_name <- names(tests)[vapply(tests, identical, logical(1), y = method)]
+  if (length(method_name) == 0) method_name <- sub("^.*::", "", deparse(substitute(method)))[1]
+  k_range <- switch(method_name,
                     "FOBIasymp" = 0:(p - 1),
                     "FOBIboot" = 0:(p - 1),
                     "ICSboot" = 1:(p - 2),
@@ -97,16 +110,23 @@ kSearch <- function(X,
                     "PCAasymp" = 0:(p - 2),
                     "PCAboot" = 0:(p - 2),
                     "PCAschott" = 0:(p - 2),
+                    "PCAlrt" = 0:(p - 2),
                     "SIRasymp" = 0:(p - 1),
                     "SIRboot" = 0:(p - 1),
                     stop("Unknown test function")
   )
 
   # Limit k_range to min_dim and max_dim if necessary
+  if (!is.null(min_dim) && (!is.numeric(min_dim) || length(min_dim) != 1 || is.na(min_dim)))
+    stop("'min_dim' must be a single number")
+  if (!is.null(max_dim) && (!is.numeric(max_dim) || length(max_dim) != 1 || is.na(max_dim)))
+    stop("'max_dim' must be a single number")
   min_dim <- if (is.null(min_dim)) min(k_range) else max(min(k_range), min_dim)
   max_dim <- if (is.null(max_dim)) p else min(p, max_dim)
   k_range <- k_range[k_range >= min_dim & k_range <= max_dim]
-  
+  if (length(k_range) == 0)
+    stop("no value of k to test between 'min_dim' and 'max_dim' for this method")
+
   # Default early_stop logic based on search method if not provided
   if (is.null(early_stop)) {
     early_stop <- switch(search,
@@ -222,7 +242,7 @@ kSearch <- function(X,
     }
     
     return(list(
-      est_dim = min(head(tested_ks[pvals <= alpha], 1) + 1, max(k_range)),
+      est_dim = if (any(pvals <= alpha)) min(head(tested_ks[pvals <= alpha], 1) + 1, max(k_range)) else min(k_range),
       tested_ks = tested_ks,
       pvals = pvals,
       test_results = test_results
@@ -239,7 +259,7 @@ kSearch <- function(X,
       
       pb <- progress_bar$new(
         format = "  Searching [:bar] :percent :elapsed",
-        total = length(log2(max(k_range))), clear = FALSE, width = 60,
+        total = floor(log2(length(k_range))) + 1, clear = FALSE, width = 60,
         show_after = 0
         )
       }
@@ -305,11 +325,15 @@ kSearch <- function(X,
   if (length(est_dim) == 0 || is.null(est_dim)) {
     warning("No value of k found where the null hypothesis is not rejected.")
     
-    # Return result with only tested_ks and p_values, but still assign class
+    # Return result with k = NA and the tested values, it is not an htest object
     result <- list(
+      k = NA_integer_,
       tested.ks = tested_ks,
       tested.ks.pvals = pvals
     )
+    class(result) <- "kSearch"
+    if (!early_stop) cat("\n")
+    return(result)
   } else {
     # If a valid k was found, include the test results
     result <- c(
@@ -324,8 +348,8 @@ kSearch <- function(X,
   # Assign the 'kSearch' class to the result, regardless of the outcome
   class(result) <- c("kSearch", "ictest", "htest")
   
-  # Return the result
-  cat("\n")
+  # Return the result (the newline ends the line of the progress bar)
+  if (!early_stop) cat("\n")
   return(result)
 }
 
@@ -361,8 +385,12 @@ kSearch <- function(X,
 #' @method summary kSearch
 #' @exportS3Method summary kSearch
 summary.kSearch <- function(object, ...) {
-  cat(paste0("kSearch estimator using \"", object$method, "\" for ", object$data.name, "\n"))
-  cat("k:", object$k, "\n")
+  if (is.na(object$k)) {
+    cat("kSearch found no value of k where the null hypothesis is not rejected\n")
+  } else {
+    cat(paste0("kSearch estimator using \"", object$method, "\" for ", object$data.name, "\n"))
+    cat("k:", object$k, "\n")
+  }
 }
 
 #' @title 
@@ -400,10 +428,12 @@ summary.kSearch <- function(object, ...) {
 #' @exportS3Method print kSearch
 print.kSearch <- function(x, digits = getOption("digits"), ...) {
   # Inform about the estimated k being printed
-  if (!is.null(x$k)) {
+  if (!is.null(x$k) && !is.na(x$k)) {
     cat("Results for estimated k = ", x$k, ":\n", sep = "")
     # Call the inherited print method from htest
     NextMethod()
+  } else {
+    cat("No value of k found where the null hypothesis is not rejected.\n\n")
   }
   
   #  Add the additional information for kSearch
