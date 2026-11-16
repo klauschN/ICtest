@@ -45,6 +45,8 @@ Version 0.3-8:
   - NGPP, NGPPsim, NGPPest: numerically stable computation of log(cosh(x)) for the "tanh" objective
   - help page fixes in NGPPsim (range of k, class htest, typo)
 
+* DESCRIPTION gives the GitHub repository as URL and BugReports, and the README has been extended
+
 Version 0.3-7:
 
 * Updating makevars files
